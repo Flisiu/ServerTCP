@@ -23,18 +23,20 @@ class CTcpListen
 
     void Run();
 
-    void Cleanup();
-
     private:
 
     SOCKET CreateSocket();
 
     SOCKET WaitForConnection(SOCKET listening);
 
-    std::string m_ipAdress;
-    int m_port;
-    MessageHandler m_handler;
+    std::string     m_ipAdress;
+    int             m_port;
+    MessageHandler  f_handler;
 
+    SOCKET          m_listening_sock;
+    sockaddr_in     m_hint;
+
+    fd_set master;
 
 };
 

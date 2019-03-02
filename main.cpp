@@ -13,9 +13,9 @@ void Listener_MsgReceived(CTcpListen* serv, int client, std::string msg)
 
 int main()
 {
-    //Łatwo dostêpne zmienne
+    //Latwo dostepne zmienne
     int port = 5017;
-    std::string ip = "127.0.0.1";
+    std::string ip = "127.0.0.1";   //ip serwera
 
     CTcpListen serv(ip, port, Listener_MsgReceived);
 
@@ -23,7 +23,11 @@ int main()
     {
         serv.Run();
     }
-
+    else
+    {
+        std::cerr<<"server could not be started. Quitting..."<<std::endl;
+        return 2;
+    }
 
     return 0;
 }

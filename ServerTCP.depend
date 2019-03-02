@@ -1,14 +1,14 @@
 # depslib dependency file v1.0
-1551492383 source:d:\kodzenie\servertcp\server.cpp
+1551550523 source:d:\kodzenie\servertcp\server.cpp
 	"Server.h"
 
-1551492435 source:d:\kodzenie\servertcp\main.cpp
+1551545439 source:d:\kodzenie\servertcp\main.cpp
 	<iostream>
 	<string>
 	<ws2tcpip.h>
 	"Server.h"
 
-1551491403 d:\kodzenie\servertcp\server.h
+1551548851 d:\kodzenie\servertcp\server.h
 	<iostream>
 	<ws2tcpip.h>
 

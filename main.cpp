@@ -13,7 +13,7 @@ void Listener_MsgReceived(CTcpListen* serv, int client, std::string msg)
 
 int main()
 {
-    //£atwo dostêpne zmienne
+    //Åatwo dostÃªpne zmienne
     int port = 5017;
     std::string ip = "127.0.0.1";
 

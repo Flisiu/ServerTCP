@@ -2,7 +2,7 @@
 1551492383 source:d:\kodzenie\servertcp\server.cpp
 	"Server.h"
 
-1551489031 source:d:\kodzenie\servertcp\main.cpp
+1551492435 source:d:\kodzenie\servertcp\main.cpp
 	<iostream>
 	<string>
 	<ws2tcpip.h>

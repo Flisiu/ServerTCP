@@ -69,18 +69,13 @@
             {
                 SOCKET sock = copy.fd_array[i];
 
-                // Is it an inbound communication?
                 if (sock == m_listening_sock)
                 {
-                    // Accept a new connection
+
                     SOCKET client = accept(m_listening_sock, nullptr, nullptr);
 
-                    // Add the new connection to the list of connected clients
                     FD_SET(client, &master);
                     std::cout<<"new client connected"<<std::endl;
-                    // Send a welcome message to the connected client
-                    std::string welcomeMsg = "Welcome to the communication Server!\r\n";
-                    send(client, welcomeMsg.c_str(), (welcomeMsg.size() + 1), 0);
                 }
                 else
                 {
@@ -152,27 +147,3 @@
     }
 
 
-
-
-    /*
-            SOCKET CLIENT = WAITFORCONNECTION(LISTENING);
-            IF (CLIENT != INVALID_SOCKET)
-            {
-                CLOSESOCKET(LISTENING);
-
-                INT BYTESRECEIVED = 0;
-                DO
-                {
-                    ZEROMEMORY(BUF,MAX_BUFF_SIZE);
-                    BYTESRECEIVED = RECV(CLIENT, BUF, MAX_BUFF_SIZE,0);
-                    IF(BYTESRECEIVED >0)
-                    {
-                        IF(F_HANDLER != NULL)
-                        {
-                            F_HANDLER(THIS,CLIENT, STD::STRING(BUF, 0, BYTESRECEIVED));
-                        }
-                    }
-
-                }WHILE(BYTESRECEIVED >0);
-            }
-            CLOSESOCKET(CLIENT);*/

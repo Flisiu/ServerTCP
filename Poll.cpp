@@ -14,7 +14,7 @@ std::string CPoll::GetName()
 
 int CPoll::CheckStat(int v)
 {
-    int czas_glosowania = 450;
+    int czas_glosowania = 45;
 
     if((v - m_voted.size())<abs(m_stat))       // sprawdzenie, czy nieoddanych glosow jest mniej niz wynosi przewaga ktorejs opcji
     {

@@ -71,7 +71,7 @@
 
                 if (sock == m_listening_sock)
                 {
-
+                    PollChecker();
                     SOCKET client = accept(m_listening_sock, nullptr, nullptr);
 
                     FD_SET(client, &master);
@@ -89,6 +89,19 @@
                         // Drop the client
                         closesocket(sock);
                         FD_CLR(sock, &master);
+
+                        for(auto it=m_nodes.begin(); it!=m_nodes.end();)
+                        {
+                            if((*it).first==sock)
+                            {
+                                it=m_nodes.erase(it);
+                            }
+                            else
+                            {
+                                ++it;
+                            }
+                        }
+
                     }
                     else
                     {
@@ -97,8 +110,10 @@
                             f_handler(this, sock, std::string(buf, 0, bytesIn));
                         }
                     }
+                    PollChecker();
                 }
             }
+
         }
 
 
@@ -140,10 +155,94 @@
         return listening;
     }
 
-    SOCKET CTcpListen::WaitForConnection(SOCKET listening)
+    bool CTcpListen::AddNode(int client, std::string name)
     {
-        SOCKET client = accept(listening,NULL,NULL);
-        return client;
+        for(std::pair<int,std::string>i: m_nodes)
+        {
+            if(client==i.first || name==i.second)
+            {
+                return false;
+            }
+        }
+        m_nodes.push_back(std::pair <int, std::string>(client, name));
+        return true;
     }
 
+    std::string CTcpListen::NodeName(int client)
+    {
+        for(std::pair<int,std::string>i: m_nodes)
+        {
+            if(client==i.first)
+            {
+                return i.second;
+            }
+        }
+        return "";
+    }
 
+    int CTcpListen::NodeCount()
+    {
+        return m_nodes.size();
+    }
+
+    bool CTcpListen::AddPoll(std::string name, std::string node, std::string content, std::string YN, int n)
+    {
+        for(CPoll i: m_polls)
+        {
+            if(name==i.GetName())
+            {
+                return false;
+            }
+        }
+        m_polls.push_back(CPoll(name,node,content));
+
+        int last = m_polls.size()-1;
+
+        if(YN=="Y")
+        {
+             m_polls[last].Vote(true,node);
+        }
+        else
+        {
+            m_polls[last].Vote(false,node);
+        }
+        return true;
+    }
+
+    void CTcpListen::SendToNodes(std::string poll)
+    {
+        for(std::pair<int,std::string> i: m_nodes)
+        {
+           Send(i.first,poll);
+        }
+    }
+
+    bool CTcpListen::PollVoting(std::string name, std::string YN, std::string node)
+    {
+        for(CPoll &i: m_polls)
+        {
+            if(name==i.GetName())
+            {
+               i.Vote(YN=="Y",node);
+               return true;
+            }
+        }
+        return false;
+    }
+
+    void CTcpListen::PollChecker()
+    {
+        for(auto it=m_polls.begin(); it!=m_polls.end();)
+        {
+            if((*it).CheckStat(NodeCount()) !=0)
+            {
+                std::string msg = "RESULT " + (*it).GetName()+(*it).Result()+"\r\n";
+                this->SendToNodes(msg);
+                it=m_polls.erase(it);
+            }
+            else
+            {
+                ++it;
+            }
+        }
+    }

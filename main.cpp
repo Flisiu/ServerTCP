@@ -1,9 +1,9 @@
 #include <iostream>
 #include <string>
 #include <vector>
-#include <ws2tcpip.h>
 #include "Server.h"
 #include "Poll.h"
+
 
 //przycinanie stringow
 std::string& ltrim(std::string& str, const std::string& chars = "\t\n\v\f\r ")
@@ -46,13 +46,13 @@ void splitter(std::string a, std::vector<std::string>& tab)
 }
 
 
-
+//funkcja przetwarzajaca widamosci od clienta
 void Listener_MsgReceived(CTcpListen* serv, int client, std::string msg)
 {
     //std::string pom= std::string(msg);
     std::vector<std::string> tab;
-
     splitter(msg, tab);
+
 
     if(tab[0]=="PONG")
     {
@@ -64,28 +64,111 @@ void Listener_MsgReceived(CTcpListen* serv, int client, std::string msg)
     }
     else if(tab[0]=="NODE")
     {
-        //TO DO dodaj wezel do listy sprawdzajac czy wpisana nazwa jest wolna
+        if(tab.size()>1)
+        {
+            if(!serv->AddNode(client, tab[1]))
+            {
+                serv->Send(client,"NOK taki wezel juz istnieje\r\n");
+            }
+        }
+        else
+        {
+            serv->Send(client,"NOK nie podano nazwy wezla\r\n");
+        }
     }
     else if(tab[0]=="NEW")
     {
-        //TO DO stworz nowe glosowanie
+        if(tab.size()<3)        //pusta tresc jest dopuszczalna
+        {
+            serv->Send(client,"NOK podano za malo danych o glosowaniu\r\n");
+        }
+        else
+        {
+            std::string wezel = serv->NodeName(client);
+            if(wezel.size() != 0)
+            {
+                if(tab[2]=="Y" || tab[2]=="N")
+                {
+                    std::string tresc = "";
+                    for(int i=3;i<tab.size();++i)
+                    {
+                        tresc+=(" " + tab[i]);
+                    }
+
+                    if(serv->AddPoll(tab[1],wezel ,tresc, tab[2], serv->NodeCount()))
+                    {
+                        std::string pollinfo = "NEW "+wezel+" "+tab[1]+" "+tresc+"\r\n";
+                        serv->SendToNodes(pollinfo);
+                        serv->SendToNodes("VOTE "+wezel+" "+tab[1]+" "+tab[2]+" \r\n");
+                    }
+                    else
+                    {
+                        serv->Send(client,"NOK takie glosowanie juz istnieje\r\n");
+                    }
+                }
+                else
+                {
+                    serv->Send(client,"NOK niepoprawny format komendy\r\n");
+                }
+            }
+            else
+            {
+                serv->Send(client,"NOK wezel nie rozpoznany\r\n");
+            }
+        }
     }
+
     else if(tab[0]=="VOTE")
     {
-        //TO DO zaglosuj
+        std::string wezel = serv->NodeName(client);
+        if(wezel.size() != 0)
+        {
+            if(tab.size()!=3)
+            {
+                serv->Send(client,"NOK niepoprawny format komendy\r\n");
+            }
+            else
+            {
+                if(tab[2]!="N" && tab[2]!="Y")
+                {
+                    serv->Send(client,"NOK niepoprawny format komendy\r\n");
+                }
+                else
+                {
+                    if(serv->PollVoting(tab[1],tab[2],wezel))
+                    {
+                        std::string pollinfo = "VOTE "+wezel+" "+tab[1]+" "+tab[2]+"\r\n";
+                        serv->SendToNodes(pollinfo);
+                    }
+                    else
+                    {
+                        serv->Send(client,"NOK nie ma takiego glosowania\r\n");
+                    }
+                }
+            }
+        }
+        else
+        {
+            serv->Send(client,"NOK wezel nie rozpoznany\r\n");
+        }
+
     }
     else
     {
-        serv->Send(client,"nie rozpoznano komendy\r\n");
+        serv->Send(client,"NOK nie rozpoznano komendy\r\n");
     }
-
 }
+
 
 int main()
 {
     //Latwo dostepne zmienne
     int port = 5017;
     std::string ip = "127.0.0.1";   //ip serwera
+
+    //czas trwania glosowania mozna zmienic w pliku Poll.cpp - metoda CheckStat()
+
+
 
     CTcpListen serv(ip, port, Listener_MsgReceived);
 

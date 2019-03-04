@@ -1,21 +1,26 @@
 # depslib dependency file v1.0
-1551562536 source:d:\kodzenie\servertcp\server.cpp
+1551660339 source:d:\kodzenie\servertcp\server.cpp
 	"Server.h"
 
-1551572888 source:d:\kodzenie\servertcp\main.cpp
+1551661017 source:d:\kodzenie\servertcp\main.cpp
 	<iostream>
 	<string>
 	<vector>
-	<ws2tcpip.h>
 	"Server.h"
 	"Poll.h"
 
-1551548851 d:\kodzenie\servertcp\server.h
+1551663081 d:\kodzenie\servertcp\server.h
 	<iostream>
 	<ws2tcpip.h>
+	<vector>
+	<utility>
+	"Poll.h"
 
-1551569082 source:d:\kodzenie\servertcp\poll.cpp
+1551662505 source:d:\kodzenie\servertcp\poll.cpp
+	"Poll.h"
 
-1551570899 d:\kodzenie\servertcp\poll.h
+1551663187 d:\kodzenie\servertcp\poll.h
+	<vector>
 	<string>
+	<ctime>
 
